@@ -1,14 +1,14 @@
 FROM registry.hub.docker.com/library/debian:bullseye
 
 #ARGS
-ARG userName=cyvan
-ARG userId=1000
-ARG userHome=/home/$userName
+ARG user_name=cyvan
+ARG user_id=1000
+ARG user_home=/home/$userName
 
 #Environment settings
-ENV USERNAME=$userName
-ENV USERID=$userId
-ENV USERHOME=$userHome
+ENV USERNAME=$user_name
+ENV USERID=$user_id
+ENV USERHOME=$user_home
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -39,7 +39,16 @@ RUN curl -L https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -o go.t
   chown -R "${USERID}:${USERID}" /go && \
   rm go.tar.gz
 ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+# Install kubectl
+ENV K8S_VERSION v1.23.6
+ENV K8S_SHA 703a06354bab9f45c80102abff89f1a62cbc2c6d80678fd3973a014acc7c500a
+RUN curl -L https://dl.k8s.io/release/${K8S_VERSION}/bin/linux/amd64/kubectl -o kubectl && \
+  echo "${K8S_SHA} kubectl" | sha256sum -c && \
+  chmod +x kubectl && \
+  mkdir -p /toolbox/bin && \
+  mv ./kubectl /toolbox/bin/kubectl
 
 
+ENV PATH /toolbox/bin/:$GOPATH/bin:/usr/local/go/bin:$PATH
 USER $USERNAME
