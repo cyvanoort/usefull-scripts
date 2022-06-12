@@ -2,7 +2,7 @@ FROM registry.hub.docker.com/library/debian:bullseye
 
 #ARGS
 ARG user_name=cyvan
-ARG user_id=1000
+ARG user_id=501
 ARG user_home=/home/$userName
 
 #Environment settings
@@ -42,6 +42,7 @@ RUN curl -L https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -o go.t
   chown -R "${USERID}:${USERID}" /go && \
   rm go.tar.gz
 ENV GOPATH /go
+RUN ln -s /usr/local/go/bin/go /usr/bin/
 
 # Install kubectl
 ENV K8S_VERSION v1.23.6
@@ -53,5 +54,5 @@ RUN curl -L https://dl.k8s.io/release/${K8S_VERSION}/bin/linux/amd64/kubectl -o 
   mv ./kubectl /toolbox/bin/kubectl
 
 
-ENV PATH /toolbox/bin/:$GOPATH/bin:/usr/local/go/bin:$PATH
+ENV PATH /toolbox/bin/:$GOPATH/bin:$PATH
 USER $USERNAME
